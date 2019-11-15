@@ -7,6 +7,7 @@ Usage:
     sanity_check.py 1e
     sanity_check.py 1f
     sanity_check.py 1j
+    sanity_check.py 1h
     sanity_check.py 2a
     sanity_check.py 2b
     sanity_check.py 2c
@@ -33,6 +34,7 @@ from nmt_model import NMT
 import torch
 import torch.nn as nn
 import torch.nn.utils
+from highway import Highway
 
 #----------
 # CONSTANTS
@@ -41,7 +43,6 @@ BATCH_SIZE = 5
 EMBED_SIZE = 3
 HIDDEN_SIZE = 3
 DROPOUT_RATE = 0.0
-
 
 class DummyVocab():
     def __init__(self):
@@ -111,6 +112,25 @@ def question_1j_sanity_check(model):
 	assert(list(output.size()) == output_expected_size), "output shape is incorrect: it should be:\n {} but is:\n{}".format(output_expected_size, list(output.size()))
 	print("Sanity Check Passed for Question 1j: Model Embedding!")
 	print("-"*80)
+
+def question_1h_sanity_check(highway):
+    """ Sanity check for Highway
+    """
+
+    print ("-"*80)
+    print("Running Sanity Check for Question 1h: Highway")
+    print ("-"*80)
+
+    x_conv_out = torch.randn((BATCH_SIZE, EMBED_SIZE, EMBED_SIZE))
+    highway = Highway(EMBED_SIZE)
+    x_highway = highway(x_conv_out)
+    assert x_conv_out.size() == x_highway.size(
+    ), "Output size should be: {}\n but is {}\n".format(x_conv_out.size(), x_highway.size())
+
+    print("Sanity Check Passed for Question 1h: correct shape")
+    print("-"*80)
+
+
 
 def question_2a_sanity_check(decoder, char_vocab):
     """ Sanity check for CharDecoder.__init__()
@@ -191,22 +211,7 @@ def main():
     torch.cuda.manual_seed(seed)
     np.random.seed(seed * 13 // 7)
 
-    vocab = Vocab.load('./sanity_check_en_es_data/vocab_sanity_check.json') 
-
-    # Create NMT Model
-    model = NMT(
-        embed_size=EMBED_SIZE,
-        hidden_size=HIDDEN_SIZE,
-        dropout_rate=DROPOUT_RATE,
-        vocab=vocab)
-
-    char_vocab = DummyVocab()
-
-    # Initialize CharDecoder
-    decoder = CharDecoder(
-        hidden_size=HIDDEN_SIZE,
-        char_embedding_size=EMBED_SIZE,
-        target_vocab=char_vocab)
+    highway = Highway(EMBED_SIZE)
 
     if args['1e']:
         question_1e_sanity_check()
@@ -214,6 +219,8 @@ def main():
         question_1f_sanity_check()
     elif args['1j']:
         question_1j_sanity_check(model)
+    elif args['1h']:
+        question_1h_sanity_check(highway)
     elif args['2a']:
         question_2a_sanity_check(decoder, char_vocab)
     elif args['2b']:
