@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class CNN(nn.Module):
-    def __init__(self, char_embed_size, max_word_len, filters_num, kernel_size=5):
+    def __init__(self, char_embed_size, filters_num, max_word_len =21, kernel_size=5):
         """ 
         Init CNN which is a 1-D cnn.
         @param char_embed_size (int): char embedding size (dimensionality)
@@ -37,7 +37,7 @@ class CNN(nn.Module):
         """
 
         x_conv_out = self.conv1d(x_reshape)
-        return self.maxpool(F.relu(x_conv_out)).squeeze()
+        return self.maxpool(F.relu(x_conv_out)).squeeze(-1)
 
 ### END YOUR CODE
 

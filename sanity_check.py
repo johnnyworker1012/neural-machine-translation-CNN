@@ -211,6 +211,21 @@ def main():
     torch.cuda.manual_seed(seed)
     np.random.seed(seed * 13 // 7)
 
+    vocab = Vocab.load('./sanity_check_en_es_data/vocab_sanity_check.json')
+
+    # Create NMT Model
+    model = NMT(embed_size=EMBED_SIZE,
+                hidden_size=HIDDEN_SIZE,
+                dropout_rate=DROPOUT_RATE,
+                vocab=vocab)
+
+    char_vocab = DummyVocab()
+
+    # Initialize CharDecoder
+    decoder = CharDecoder(hidden_size=HIDDEN_SIZE,
+                          char_embedding_size=EMBED_SIZE,
+                          target_vocab=char_vocab)
+
     highway = Highway(EMBED_SIZE)
 
     if args['1e']:
